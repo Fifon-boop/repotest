@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <base target="_blank">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filip Chmielewski | Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+    <style>
+        /* Stylizacja scrollbara w stylu Spotify */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #000000; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #5a5a5a; 
+            border-radius: 6px;
+            border: 3px solid #000000;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #888; 
+        }
+
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden; 
+        }
+
+        /* Tabela Projektów (Playlista) */
+        .project-row {
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .project-row:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Ukrywamy ikonę play domyślnie, pokazujemy przy hover */
+        .project-row .play-icon-container {
+            opacity: 0;
+            transform: translateX(-5px);
+            transition: all 0.2s ease;
+        }
+        .project-row:hover .play-icon-container {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        /* Podświetlenie tytułu na zielono przy hover */
+        .project-row:hover .project-title {
+            color: #1DB954;
+        }
+
+        /* Animacja Marquee dla logotypów */
+        .marquee-wrapper {
+            overflow: hidden;
+            white-space: nowrap;
+            mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
+            background: #000;
+            padding: 30px 0;
+            border-bottom: 1px solid #282828;
+        }
+        .marquee-content {
+            display: inline-flex;
+            align-items: center;
+            animation: scroll 40s linear infinite;
+        }
+        .marquee-content:hover {
+            animation-play-state: paused;
+        }
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Logotypy IMG - Stylizacja */
+        .brand-logo-img {
+            height: 50px;
+            width: auto;
+            margin: 0 40px;
+            filter: grayscale(100%) brightness(0.7);
+            transition: all 0.3s ease;
+            opacity: 0.6;
+            display: block;
+            object-fit: contain;
+        }
+        .brand-logo-img:hover {
+            filter: grayscale(0%) brightness(1);
+            opacity: 1;
+            transform: scale(1.05);
+        }
+
+        /* Modal */
+        #modal-overlay {
+            transition: opacity 0.3s ease;
+        }
+        /* Kluczowe poprawki dla centrowania modala */
+        .modal-centering {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<!-- USUNIĘTO contenteditable="true" co blokowało linki -->
+<body class="flex h-screen text-sm md:text-base">
+
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-black flex-shrink-0 flex flex-col h-full border-r border-[#282828] hidden md:flex z-20">
+        <div class="p-6">
+            <div class="flex items-center gap-3 mb-8 cursor-pointer group" onclick="document.getElementById('home').scrollIntoView({behavior: 'smooth'})">
+                <div class="w-10 h-10 bg-gradient-to-br from-[#1DB954] to-green-900 rounded-full flex items-center justify-center text-black font-bold text-lg group-hover:scale-105 transition shadow-[0_0_15px_rgba(29,185,84,0.3)]">
+                    F
+                </div>
+                <span class="font-bold text-lg tracking-tight group-hover:text-white text-gray-200 transition">Filip Chmielewski</span>
+            </div>
+
+            <nav class="space-y-2">
+                <button onclick="scrollToSection('home')" class="w-full flex items-center gap-4 text-gray-400 hover:text-white transition font-semibold px-4 py-3 rounded hover:bg-[#282828]">
+                    <i class="fas fa-home text-xl w-6 text-center"></i>
+                    <span>Start</span>
+                </button>
+                <button onclick="scrollToSection('projects-list')" class="w-full flex items-center gap-4 text-gray-400 hover:text-white transition font-semibold px-4 py-3 rounded hover:bg-[#282828]">
+                    <i class="fas fa-list text-xl w-6 text-center"></i>
+                    <span>Lista Projektów</span>
+                </button>
+                <button onclick="scrollToSection('skills')" class="w-full flex items-center gap-4 text-gray-400 hover:text-white transition font-semibold px-4 py-3 rounded hover:bg-[#282828]">
+                    <i class="fas fa-bolt text-xl w-6 text-center"></i>
+                    <span>Umiejętności</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- Sekcja Kontakt w Sidebarze -->
+        <div class="mt-auto p-6 border-t border-[#282828] bg-black">
+            <h3 class="text-xs uppercase tracking-widest text-gray-500 font-bold mb-4">Kontakt</h3>
+            <ul class="space-y-4 text-sm text-gray-300">
+                <!-- E-mail jako klikalny element -->
+                <li>
+                    <a href="mailto:filip.chmielewski@sajko.network" class="flex items-center gap-3 hover:text-white transition group w-full cursor-pointer">
+                        <div class="w-8 h-8 rounded bg-white/10 flex items-center justify-center group-hover:bg-[#1DB954] group-hover:text-black transition flex-shrink-0">
+                            <i class="fas fa-envelope text-gray-400 group-hover:text-black transition"></i>
+                        </div>
+                        <span class="text-sm font-medium">Wyślij e-mail</span>
+                    </a>
+                </li>
+                
+                <li class="flex items-center gap-3 hover:text-white transition cursor-default group">
+                    <div class="w-8 h-8 rounded bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition flex-shrink-0">
+                        <i class="fas fa-phone text-gray-400 group-hover:text-white"></i>
+                    </div>
+                    <span class="text-xs font-mono">667 920 726</span>
+                </li>
+                
+                <!-- LinkedIn jako standardowy tag <a> -->
+                <li>
+                    <a href="https://www.linkedin.com/in/filip-chmielewski-499495164/" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 hover:text-white transition group w-full cursor-pointer">
+                        <div class="w-8 h-8 rounded bg-white/10 flex items-center justify-center group-hover:bg-[#0077b5] group-hover:text-white transition flex-shrink-0">
+                            <i class="fab fa-linkedin-in text-gray-400 group-hover:text-white"></i>
+                        </div>
+                        <span class="text-xs">LinkedIn</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 relative overflow-y-auto bg-gradient-to-b from-[#121212] to-[#000000] h-full" id="main-scroll">
+        
+        <!-- Mobile Header -->
+        <div class="md:hidden p-4 bg-black/90 backdrop-blur sticky top-0 z-30 flex justify-between items-center border-b border-[#282828]">
+            <span class="font-bold">Filip Chmielewski</span>
+            <!-- Mobile contact icons -->
+            <div class="flex gap-4">
+                 <a href="mailto:filip.chmielewski@sajko.network" class="text-[#1DB954]">
+                    <i class="fas fa-envelope text-xl"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Hero Section -->
+        <header id="home" class="p-8 md:p-10 pt-16 flex flex-col md:flex-row items-end gap-8 bg-gradient-to-b from-[#404040] via-[#181818] to-[#121212]">
+            <!-- ZMIANA: Zamiast ikony, wstawiamy zdjęcie (img tag) -->
+            <div class="w-48 h-48 md:w-60 md:h-60 shadow-[0_8px_40px_rgba(0,0,0,0.6)] bg-[#282828] flex-shrink-0 relative group overflow-hidden rounded-md">
+                 <!-- Tutaj wstawiamy Twoje zdjęcie. Plik musi nazywać się 'profile.jpg' i być w tym samym folderze co index.html -->
+                 <img src="profile.jpg" alt="Filip Chmielewski" class="w-full h-full object-cover group-hover:scale-110 transition duration-500" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x400/282828/ffffff?text=F';">
+            </div>
+            
+            <div class="flex-1 mb-2">
+                <p class="uppercase text-xs font-bold tracking-wider text-white mb-2 flex items-center gap-2">
+                    <i class="fas fa-check-circle text-[#1DB954]"></i> Profil Zweryfikowany
+                </p>
+                <h1 class="text-4xl md:text-7xl font-bold tracking-tighter mb-6 text-white drop-shadow-xl">Project Manager</h1>
+                <p class="text-gray-300 max-w-3xl text-base md:text-lg leading-relaxed font-medium">
+                    "Pochodna człowieka, z pasją do próby zrozumienia procesów, na których stoi świat. Project Manager z wieloletnim doświadczeniem w zarządzaniu projektami muzycznymi, stały bywalec planów teledysków, pasjonat kreatywnych tekstów kultury."
+                </p>
+                
+                <div class="flex flex-wrap gap-6 mt-8 text-sm font-bold text-gray-300">
+                    <div class="flex items-center gap-2"><i class="fas fa-check-circle text-[#1DB954]"></i> <span class="text-white">50+</span> Projektów</div>
+                    <div class="flex items-center gap-2"><i class="fas fa-users text-[#1DB954]"></i> <span class="text-white">200+</span> Artystów</div>
+                    <div class="flex items-center gap-2"><i class="fas fa-chart-line text-[#1DB954]"></i> <span class="text-white">1,5 mld</span> Streamów</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Logotypy (Marquee with IMG files) -->
+        <section class="bg-black pt-4 pb-0">
+            <h3 class="text-center text-gray-500 uppercase text-[10px] font-bold tracking-[0.3em] mb-4">Zaufali mi</h3>
+            <div class="marquee-wrapper">
+                <div class="marquee-content">
+                    
+                    <!-- Loga ładowane przez IMG zgodnie z nazwami plików -->
+                    <img src="universal music polska logotyp.jpg" alt="Universal" class="brand-logo-img">
+                    <img src="def jam recordings poland logo.png" alt="Def Jam" class="brand-logo-img">
+                    <img src="ekipa_music_entertainment_logo.jpeg" alt="Ekipa" class="brand-logo-img">
+                    <img src="warner music poland logotyp.jpg" alt="Warner" class="brand-logo-img">
+                    <img src="e_muzyka_s_a__logo.jpeg" alt="E-Muzyka" class="brand-logo-img">
+                    <img src="sbm label logotyp.png" alt="SBM" class="brand-logo-img">
+                    <img src="asfalt records logo.webp" alt="Asfalt" class="brand-logo-img">
+                    <img src="fresh n dope logo.jpeg" alt="Fresh N Dope" class="brand-logo-img">
+                    <img src="quequality logo.webp" alt="QueQuality" class="brand-logo-img">
+                    <img src="gugu logo.png" alt="GUGU" class="brand-logo-img">
+
+                    <!-- POWTÓRKA DLA PŁYNNOŚCI (LOOP) -->
+                    <img src="universal music polska logotyp.jpg" alt="Universal" class="brand-logo-img">
+                    <img src="def jam recordings poland logo.png" alt="Def Jam" class="brand-logo-img">
+                    <img src="ekipa_music_entertainment_logo.jpeg" alt="Ekipa" class="brand-logo-img">
+                    <img src="warner music poland logotyp.jpg" alt="Warner" class="brand-logo-img">
+                    <img src="e_muzyka_s_a__logo.jpeg" alt="E-Muzyka" class="brand-logo-img">
+                    <img src="sbm label logotyp.png" alt="SBM" class="brand-logo-img">
+                    <img src="asfalt records logo.webp" alt="Asfalt" class="brand-logo-img">
+                    <img src="fresh n dope logo.jpeg" alt="Fresh N Dope" class="brand-logo-img">
+                    <img src="quequality logo.webp" alt="QueQuality" class="brand-logo-img">
+                    <img src="gugu logo.png" alt="GUGU" class="brand-logo-img">
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Action Bar (Play button row) - Usunięto przycisk Kompetencje -->
+        <div class="px-8 md:px-10 py-6 flex items-center gap-6 sticky top-0 bg-[#121212] z-20 shadow-xl border-b border-white/5 backdrop-blur-md bg-opacity-95">
+            <button onclick="scrollToSection('projects-list')" class="w-14 h-14 bg-[#1DB954] hover:bg-[#1ed760] rounded-full flex items-center justify-center text-black shadow-lg hover:scale-105 transition transform">
+                <i class="fas fa-play text-xl ml-1"></i>
+            </button>
+            <!-- Przycisk Kompetencje usunięty -->
+        </div>
+
+        <!-- Projects List (Table Style) -->
+        <section id="projects-list" class="px-4 md:px-10 pb-12">
+            
+            <div class="pt-6 pb-2 text-center md:text-left">
+                <h2 class="text-2xl font-bold text-white">Przykładowe zrealizowane projekty</h2>
+            </div>
+            
+            <div class="w-full text-left border-collapse mt-4">
+                <!-- Table Header - 3 kolumny, wyrównanie do lewej -->
+                <div class="grid grid-cols-[3fr_1.5fr_1.5fr] gap-4 text-gray-400 text-xs uppercase tracking-wider font-semibold border-b border-[#282828] pb-2 mb-2 sticky top-[100px] bg-[#121212] z-10 px-4 md:px-0 hidden md:grid pl-12 shadow-sm">
+                    <div class="text-left">Tytuł</div>
+                    <div class="text-left">Rola</div>
+                    <div class="text-left">Label / Klient</div>
+                </div>
+
+                <!-- Projects Loop -->
+                <div id="projects-container">
+                    <!-- Javascript will inject rows here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Skills Section -->
+        <section id="skills" class="px-8 md:px-10 py-12 border-t border-[#282828]">
+            <h2 class="text-2xl font-bold mb-8 text-white hover:underline decoration-[#1DB954] cursor-default">Umiejętności</h2>
+            <div class="bg-[#181818] p-8 rounded-lg hover:bg-[#202020] transition duration-300">
+                <div class="flex flex-wrap gap-3" id="all-skills">
+                    <!-- JS Injected -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="p-8 text-center text-xs text-gray-600 border-t border-[#282828] bg-black">
+            <p>© 2024 Filip Chmielewski Portfolio. All rights reserved.</p>
+        </footer>
+
+    </main>
+
+    <!-- MODAL -->
+    <div id="modal-overlay" class="fixed inset-0 bg-black/80 z-50 hidden modal-centering p-4 backdrop-blur-sm opacity-0 pointer-events-none" onclick="closeModal()">
+        <div id="modal-content" class="bg-[#181818] w-full max-w-3xl rounded-xl shadow-2xl overflow-hidden relative border border-[#333] transform transition-all" onclick="event.stopPropagation()">
+            
+            <!-- Close Button -->
+            <button onclick="closeModal()" class="absolute top-4 right-4 z-20 w-10 h-10 bg-black/40 hover:bg-black/80 rounded-full text-white flex items-center justify-center transition hover:rotate-90">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+            
+            <!-- Modal Header with Gradient -->
+            <div class="h-64 bg-gradient-to-b from-[#404040] to-[#181818] p-8 flex items-end relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+                
+                <div class="absolute top-6 left-8">
+                     <span id="modal-cat-badge" class="bg-black/30 backdrop-blur text-white text-[10px] font-bold px-3 py-1 rounded uppercase tracking-widest border border-white/10 shadow-lg">
+                        Kategoria
+                    </span>
+                </div>
+                
+                <div class="w-full relative z-10">
+                    <h2 id="modal-title" class="text-3xl md:text-5xl font-bold text-white mb-3 leading-tight tracking-tight shadow-black drop-shadow-lg">Tytuł Projektu</h2>
+                    <div class="flex flex-wrap items-center text-gray-300 text-sm font-medium gap-3">
+                        <span class="flex items-center gap-2 bg-white/10 px-3 py-1 rounded-full"><i class="fas fa-building text-[#1DB954]"></i> <span id="modal-client">Klient / Label</span></span>
+                        <span class="flex items-center gap-2 bg-white/10 px-3 py-1 rounded-full"><i class="fas fa-user-tag text-[#1DB954]"></i> <span id="modal-role">Rola</span></span>
+                    </div>
+                </div>
+                
+                <!-- Big Play Icon Decoration -->
+                <i class="fas fa-compact-disc absolute -bottom-12 -right-12 text-[10rem] text-white/5 rotate-12 animate-spin-slow"></i>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-8 md:p-10 bg-[#121212]">
+                <div class="flex items-start gap-4 mb-6">
+                    <div class="w-1 bg-[#1DB954] h-12 rounded-full"></div>
+                    <div>
+                        <h3 class="text-white font-bold text-lg mb-1">O projekcie</h3>
+                        <p id="modal-desc" class="text-gray-300 leading-relaxed text-sm md:text-base font-light text-justify">
+                            Opis...
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Przycisk Linku -->
+                <div id="modal-actions" class="mt-8 pt-6 border-t border-[#333] flex justify-end">
+                    <!-- Dodano rel="noopener noreferrer" i target="_blank" -->
+                    <a id="modal-btn" href="#" target="_blank" rel="noopener noreferrer" class="hidden bg-[#1DB954] hover:bg-[#1ed760] text-black px-6 py-3 rounded-full text-sm font-bold flex items-center gap-3 transition transform hover:scale-105 shadow-[0_4px_14px_rgba(29,185,84,0.4)]">
+                        <span>Zobacz Projekt</span> <i class="fas fa-external-link-alt"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // PEŁNA BAZA DANYCH
+        const allProjects = [
+            { 
+                title: "Hodak/2K - Custom", 
+                category: "Muzyka", 
+                role: "Project Manager", 
+                label: "Def Jam Recordings Poland", 
+                desc: "Kompleksowe zarządzanie wydawnictwem, konstrukcja planu singlowego oraz promocyjnego. O projekcie: „Custom” to projekt, który połączył wizje dwóch umysłów. W swej różnorodności jest wyjątkowo spójny przez niesamowitą, muzyczną zgodność obu artystów tworzących duet. Efekt wielomiesięcznej pracy, szeregu godzin sesji nagraniowych oraz wyważonej, końcowej selekcji. Ozłocony gościnnymi nagraniami czterech artystów, którzy idealnie dopełnili całość.", 
+                link: "" 
+            },
+            { 
+                title: "Hodak/2K - Zapach Zimy i papierosów", 
+                category: "Muzyka", 
+                role: "Project Manager", 
+                label: "Def Jam Recordings Poland", 
+                desc: "Kompleksowe zarządzanie wydawnictwem, konstrukcja planu singlowego oraz promocyjnego. \"zapach zimy i papierosów\" to swego rodzaju pamiętnik – pełen przemyśleń, emocji i aktualnych, muzycznych inspiracji. Nie tylko muzycznych, ale tylko aktualnych. Od serducha.", 
+                link: "" 
+            },
+            { 
+                title: "Hodak/2K - Moody tapes", 
+                category: "Muzyka", 
+                role: "Project Manager", 
+                label: "Def Jam Recordings Poland", 
+                desc: "Kompleksowe zarządzanie wydawnictwem, konstrukcja planu singlowego oraz promocyjnego, zarządzanie budżetem. O projekcie: “Moody Tapes, Volume One” to drugi krążek długogrający duetu Hodak i 2K. Na płycie znajdą się takie ksywki m.in. Gedz, schafter czy Paluch.", 
+                link: "" 
+            },
+            { 
+                title: "Deemz - SAUCE", 
+                category: "Muzyka", 
+                role: "Project Manager", 
+                label: "Def Jam Recordings Poland", 
+                desc: "Kompleksowe zarządzanie wydawnictwem, konstrukcja planu singlowego oraz promocyjnego, realizacja klipów, trzymanie pieczy nad budżetem. Po długich latach oczekiwania na debiut Deemza, Def Jam Recordings Poland prezentuje SAUCE! Płyta pokryta złotem.", 
+                link: "" 
+            },
+            { 
+                title: "Ero JWP - Elwis Picasso", 
+                category: "Muzyka", 
+                role: "Project Manager", 
+                label: "Def Jam Recordings Poland", 
+                desc: "„Elwis Picasso” to jeden z najbardziej wyczekiwanych krążków w historii polskiego rapu. Warszawski raper, znany z grup JWP oraz Bez Cenzury, zwany „Królem gościnnych występów”.", 
+                link: "" 
+            },
+            { 
+                title: "Tymek - Popularne", 
+                category: "Muzyka", 
+                role: "Project Manager", 
+                label: "Universal Music Polska", 
+                desc: "Opieka artystyczna, wsparcie promocyjne oraz produkcja merchu. O projekcie: „Popularne” to kontynuacja kultowej już płyty Tymka - „Klubowe”.", 
+                link: "" 
+            },
+            { 
+                title: "Young Igi - Skan Myśli", 
+                category: "Muzyka", 
+                role: "Project Manager", 
+                label: "Def Jam Recordings Poland", 
+                desc: "„Skan myśli” to drugi pełnoprawny album Young Igiego. Artysta udowadnia na nim, że ma porządny warsztat muzyczny i nie boi się wyzwań.", 
+                link: "" 
+            },
+            { 
+                title: "Def Jam CS:GO CUP", 
+                category: "Gaming", 
+                role: "Project Manager", 
+                label: "Def Jam Recordings Poland", 
+                desc: "Inicjacja i realizacja projektu od strony wytwórni. Turniej e-sportowy łączący świat muzyki i gamingu.", 
+                link: "https://media.universalmusic.pl/90351-def-jam-csgo-cup-by-sajko" 
+            },
+            { 
+                title: "Hodak x Kukon - PUMA", 
+                category: "Kampania reklamowa", 
+                role: "Project Manager", 
+                label: "Def Jam Recordings Poland", 
+                desc: "Opieka nad współpracą ze strony wytwórni. Kampania marki PUMA z udziałem artystów.", 
+                link: "https://media.universalmusic.pl/151448-kukon-i-hodak-z-identycznymi-teledyskami-w-ramach-puma-talents" 
+            },
+            { 
+                title: "Hodak x Kukon - T-Mobile", 
+                category: "Kampania reklamowa", 
+                role: "Project Manager", 
+                label: "Def Jam Recordings Poland", 
+                desc: "Opieka nad współpracą ze strony wytwórni. Kampania reklamowa dla operatora T-Mobile.", 
+                link: "https://www.wirtualnemedia.pl/hodak-kukon-reklama-t-mobile,7170030019434625a" 
+            },
+            { 
+                title: "NOCNY x Wac Toja - Żabka", 
+                category: "Kampania reklamowa", 
+                role: "Project Manager", 
+                label: "Def Jam Recordings Poland", 
+                desc: "Inicjacja i opieka nad projektem ze strony wytwórni. Kampania dla sieci Żabka.", 
+                link: "https://rytmy.pl/wac-toja-i-nocny-z-siecia-zabka" 
+            },
+            { 
+                title: "Kampania Hodak x Perła", 
+                category: "Kampania reklamowa", 
+                role: "Project Manager", 
+                label: "Def Jam Recordings Poland", 
+                desc: "Realizacja świadczeń promocyjnych w ramach współpracy z marką Perła. Hodak Instrumentalnie oraz Hodak/2K - Vice City.", 
+                link: "https://youtu.be/ydyJOQXo6JA" 
+            },
+            { 
+                title: "Film w konkursie 48HFP", 
+                category: "Produkcja filmowa", 
+                role: "Kierownik produkcji", 
+                label: "-", 
+                desc: "Udział w konkursie polegającym na stworzeniu filmu krótkometrażowego o wylosowanej tematyce w 48 godzin z ekipą „Do Portfolio”. Zwycięstwo w kategorii „Najlepsza reżyseria”, „Najlepsze kostiumy”.", 
+                link: "https://youtu.be/Yy9wVMym5qE" 
+            },
+            { 
+                title: "Lokalizacja gry „Felvidek”", 
+                category: "Gaming", 
+                role: "Kierownik projektu", 
+                label: "-", 
+                desc: "Kierownictwo grupą tłumaczy nad projektem, współtworzenie słownika. Felvidek to gra JRPG osadzona w XV-wiecznej Słowacji. Gra sprzedała się w kilku tysiącach egzemplarzy zbierając 98% pozytywnych opinii.", 
+                link: "" 
+            },
+            { 
+                title: "Projekt „Dzielnica Wisła”", 
+                category: "SoMe", 
+                role: "Social Media Manager", 
+                label: "-", 
+                desc: "Prowadzenie social mediów oraz pomoc w dobraniu influencerów do kampanii Dzielnicy Wisły - nieoficjalnej 19. dzielnicy Warszawy.", 
+                link: "https://www.facebook.com/dzielnicawislapl" 
+            },
+            { 
+                title: "Koordynacja studia nagraniowego", 
+                category: "Inne", 
+                role: "Project Manager", 
+                label: "Universal Music Polska", 
+                desc: "Zarządzanie kalendarzem studia nagraniowego Universal Music Polska, dbanie o asortyment studia oraz sprzęt fotograficzny.", 
+                link: "" 
+            },
+            { 
+                title: "Kostek - JACKPOT", 
+                category: "Muzyka", 
+                role: "Project Manager", 
+                label: "Ekipa Music", 
+                desc: "Doradztwo artystyczne, zarządzanie repertuarem, organizacja sesji nagraniowych. Realizacja singla „JACKPOT”.", 
+                link: "https://youtu.be/OXLoIGPEFys" 
+            },
+            { 
+                title: "Kinga Banaś - TU GDZIE MAM BYĆ", 
+                category: "Muzyka", 
+                role: "Project Manager", 
+                label: "Ekipa Music", 
+                desc: "Wydawnictwo singla „TU GDZIE MAM BYĆ”.", 
+                link: "https://youtu.be/3dfl-g4OC4k" 
+            },
+            { 
+                title: "Fausti", 
+                category: "Muzyka", 
+                role: "Project Manager", 
+                label: "Ekipa Music", 
+                desc: "Doradztwo artystyczne, zarządzanie repertuarem, organizacja sesji nagraniowych. Realizacja muzyczna singli „PAPA”, „STICKY RICE” oraz „DAJ ZAPOMNIEĆ”.", 
+                link: "https://youtu.be/xjX-6lUBSoo" 
+            },
+            { 
+                title: "OIO", 
+                category: "Muzyka", 
+                role: "Distribution Manager", 
+                label: "Universal Music Polska", 
+                desc: "Wsparcie promocyjne i dystrybucja materiału.", 
+                link: "" 
+            },
+            { 
+                title: "Schafter", 
+                category: "Muzyka", 
+                role: "Distribution Manager", 
+                label: "Universal Music Polska", 
+                desc: "Wsparcie promocyjne i dystrybucja materiału.", 
+                link: "" 
+            },
+            { 
+                title: "Julia Pośnik", 
+                category: "Muzyka", 
+                role: "Project Manager", 
+                label: "Universal Music Polska", 
+                desc: "Zarządzanie projektem, opieka nad artystką.", 
+                link: "" 
+            },
+            { 
+                title: "PlanBe - Blue Moon", 
+                category: "Muzyka", 
+                role: "Project Manager", 
+                label: "Warner Music Polska", 
+                desc: "Wydawnictwo płyty „Blue Moon”.", 
+                link: "" 
+            },
+            { 
+                title: "Smolasty", 
+                category: "Muzyka", 
+                role: "Project Manager", 
+                label: "Warner Music Polska", 
+                desc: "Wsparcie projektowe artysty, doradztwo artystyczne.", 
+                link: "" 
+            },
+            { 
+                title: "Fresh n Dope", 
+                category: "Muzyka", 
+                role: "Project Manager", 
+                label: "Universal Music Polska", 
+                desc: "Dystrybucja projektów spod szyldu Fresh n Dope, wsparcie promocyjne.", 
+                link: "" 
+            },
+            { 
+                title: "Cichoń", 
+                category: "Muzyka", 
+                role: "Project Manager", 
+                label: "Def Jam Recordings Poland", 
+                desc: "Zarządzanie projektem, opieka artystyczna.", 
+                link: "" 
+            },
+            { 
+                title: "Gdzie jest Eis?", 
+                category: "Muzyka", 
+                role: "Distribution Manager", 
+                label: "Def Jam Recordings Poland", 
+                desc: "Reedycja płyty „Gdzie jest Eis?”, pomoc promocyjna. Reedycja kultowej płyty.", 
+                link: "" 
+            },
+            { 
+                title: "Almost Famous", 
+                category: "Muzyka", 
+                role: "Project Manager", 
+                label: "Def Jam Recordings Poland", 
+                desc: "Zarządzanie wydawnictwem płyty „Almost Famous”.", 
+                link: "https://defjam.pl/rap-hip-hop-3almost-famous-2" 
+            },
+            { 
+                title: "Szpaku - Uzumaki forma ostateczna", 
+                category: "Muzyka", 
+                role: "Project Manager", 
+                label: "E-Muzyka", 
+                desc: "Wsparcie promocyjne i dystrybucja materiału.", 
+                link: "" 
+            },
+            { 
+                title: "Mortalcio", 
+                category: "Muzyka", 
+                role: "Project Manager", 
+                label: "Ekipa Music", 
+                desc: "Doradztwo artystyczne, pomoc w doborze repertuaru, realizacja singla „DEADLINE”.", 
+                link: "" 
+            },
+            { 
+                title: "NOCNY", 
+                category: "Muzyka", 
+                role: "Project Manager", 
+                label: "Def Jam Recordings Poland", 
+                desc: "Doradztwo artystyczne, opieka artystyczna, realizacja singla „NIE WYSYŁAJ”.", 
+                link: "" 
+            },
+            { 
+                title: "Popkiller Młode Wilki 8", 
+                category: "Muzyka", 
+                role: "Project Manager", 
+                label: "Universal Music Polska", 
+                desc: "Wsparcie promocyjne i dystrybucja materiału.", 
+                link: "" 
+            }
+        ];
+
+        // Tasowanie (Randomizacja)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        
+        shuffleArray(allProjects);
+
+        const skills = [
+            "PR", "Marketing", "Praca pod presją", "Logistyka", "Obsługa projektów", 
+            "Jira", "PRINCE2", "Doradztwo strategiczne", "Risk Management", 
+            "Monday / ClickUp / Asana", "Optymalizacja zasobów", "Analiza i raportowanie", 
+            "Estymacja P&L", "Analityka predykcyjna", "MS Office"
+        ];
+
+        // RENDEROWANIE TABELI (Playlisty)
+        const container = document.getElementById('projects-container');
+        
+        allProjects.forEach((proj, idx) => {
+            const row = document.createElement('div');
+            row.className = "project-row grid grid-cols-1 md:grid-cols-[3fr_1.5fr_1.5fr] gap-2 md:gap-4 p-3 md:px-0 md:py-3 rounded items-center border-b border-[#282828] md:border-none group";
+            row.onclick = () => openModal(proj);
+
+            // Tytuł
+            const titleCol = document.createElement('div');
+            titleCol.className = "flex items-center overflow-hidden pl-2 md:pl-12 relative h-10";
+            titleCol.innerHTML = `
+                <div class="play-icon-container absolute left-2 md:left-4 text-[#1DB954] transition-opacity">
+                    <i class="fas fa-play text-sm"></i>
+                </div>
+                <div class="flex flex-col justify-center">
+                    <span class="project-title text-white font-medium text-sm md:text-base truncate w-full transition-colors">${proj.title}</span>
+                    <span class="text-gray-500 text-xs md:hidden mt-0.5">${proj.role} • ${proj.label}</span>
+                </div>
+            `;
+
+            // Rola
+            const roleCol = document.createElement('div');
+            roleCol.className = "text-gray-400 text-sm hidden md:block";
+            roleCol.innerText = proj.role;
+
+            // Label
+            const labelCol = document.createElement('div');
+            labelCol.className = "text-gray-400 text-sm truncate hidden md:block";
+            labelCol.innerText = proj.label;
+
+            row.append(titleCol, roleCol, labelCol);
+            container.appendChild(row);
+        });
+
+        // RENDEROWANIE SKILLS
+        const skillsContainer = document.getElementById('all-skills');
+
+        skills.forEach((skill) => {
+            const badge = document.createElement('span');
+            badge.className = "bg-[#282828] text-gray-300 border border-transparent px-4 py-2 rounded-full text-xs font-bold hover:bg-[#1DB954] hover:text-black transition cursor-default tracking-wide transform hover:scale-105";
+            badge.innerText = skill;
+            skillsContainer.appendChild(badge);
+        });
+
+        // SCROLL
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // MODAL FUNKCJE
+        const modalOverlay = document.getElementById('modal-overlay');
+        const modalBtn = document.getElementById('modal-btn');
+
+        function openModal(p) {
+            document.getElementById('modal-title').innerText = p.title;
+            document.getElementById('modal-role').innerText = p.role;
+            document.getElementById('modal-client').innerText = p.label;
+            document.getElementById('modal-desc').innerText = p.desc;
+            document.getElementById('modal-cat-badge').innerText = p.category;
+
+            // Obsługa Linku (Naprawa hiperłącza - upewnienie się, że target="_blank")
+            if(p.link && p.link !== "") {
+                modalBtn.href = p.link;
+                modalBtn.classList.remove('hidden');
+                modalBtn.classList.add('flex');
+            } else {
+                modalBtn.classList.add('hidden');
+                modalBtn.classList.remove('flex');
+            }
+
+            modalOverlay.classList.remove('hidden', 'pointer-events-none');
+            setTimeout(() => {
+                modalOverlay.classList.remove('opacity-0');
+                modalOverlay.classList.add('open');
+            }, 10);
+        }
+
+        function closeModal() {
+            modalOverlay.classList.remove('open');
+            modalOverlay.classList.add('opacity-0');
+            setTimeout(() => {
+                modalOverlay.classList.add('hidden', 'pointer-events-none');
+            }, 300);
+        }
+    </script>
+
+</body>
+</html>
